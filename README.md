@@ -1,2 +1,2 @@
 # EstrD22s1
-Repo Estructura de datos ( UNQ ) 
+Repo Estructura de datos ( UNQ ) Miguel Petrillo

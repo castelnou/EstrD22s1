@@ -126,17 +126,18 @@ implica x y = True
 --función debe ser tal que yTambien False (error "Mal") devuelva False.
 --En Haskell ya está definida como \&\&.
 yTambien :: Bool -> Bool -> Bool
-yTambien True True = True
-yTambien _ _ = False
+yTambien False _ = False
+yTambien _ True = True
 
 
 
 --d) Dados dos booleanos si alguno de ellos es True devuelve True, sino devuelve False.
 --Esta función debe ser tal que oBien True (error "Mal") devuelva True.
 --En Haskell ya está deefinida como ||.
+-- Lo cambio por la logica vista en clase
 oBien :: Bool -> Bool -> Bool
-oBien False False = False
-oBien _ _ = True
+oBien True _ = True
+oBien _ b = b
 --or True False = True
 --or False True = True
 --or True True = True

@@ -125,9 +125,12 @@ implica x y = True
 --c) Dados dos booleanos si ambos son True devuelve True, sino devuelve False. Esta
 --función debe ser tal que yTambien False (error "Mal") devuelva False.
 --En Haskell ya está definida como \&\&.
+--yTambien :: Bool -> Bool -> Bool
+--yTambien False _ = False
+--yTambien _ True = True
 yTambien :: Bool -> Bool -> Bool
-yTambien False _ = False
-yTambien _ True = True
+yTambien True b = b 
+yTambien _ _ = False
 
 
 

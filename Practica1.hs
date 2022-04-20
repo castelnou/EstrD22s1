@@ -126,8 +126,6 @@ implica x y = True
 --función debe ser tal que yTambien False (error "Mal") devuelva False.
 --En Haskell ya está definida como \&\&.
 --yTambien :: Bool -> Bool -> Bool
---yTambien False _ = False
---yTambien _ True = True
 yTambien :: Bool -> Bool -> Bool
 yTambien True b = b 
 yTambien _ _ = False
@@ -139,12 +137,8 @@ yTambien _ _ = False
 --En Haskell ya está deefinida como ||.
 -- Lo cambio por la logica vista en clase
 oBien :: Bool -> Bool -> Bool
-oBien True _ = True
-oBien _ b = b
---or True False = True
---or False True = True
---or True True = True
---or x y = False
+oBien False b = b
+oBien _ _ = True
 
 
 --3. Registros

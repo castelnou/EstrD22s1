@@ -34,50 +34,43 @@ disyuncion (x:xs) = x || disyuncion xs
 --6 Dada una lista de listas, devuelve una única lista con todos sus elementos.
 aplanar :: [[a]] -> [a]
 aplanar [] = []
---aplanar (x:xs) = x ++ aplanar xs // Se reemplaza por la función
-aplanar (x:xs) = concatenar x ( aplanar xs )
+aplanar (xs:xss) = concatenar xs ( aplanar xss )
 
 
 --7 Dados un elemento e y una lista xs devuelve True si existe un elemento en xs que sea igual
 -- a e.
 pertenece :: Eq a => a -> [a] -> Bool
 pertenece x [] = False
-pertenece e (x:xs) = 
-	if e == x
-	then True
-	else pertenece e xs
+pertenece e (x:xs) = e == x || pertenece e xs
 
 --8 Dados un elemento e y una lista xs cuenta la cantidad de apariciones de e en xs.
 apariciones :: Eq a => a -> [a] -> Int
 apariciones e [] = 0
-apariciones e (x:xs) = 
-	if e == x
-	then 1 + apariciones e xs
-	else apariciones e xs
+apariciones e (x:xs) = if e == x
+					   then 1 + apariciones e xs
+					   else apariciones e xs
 
---9 Dados un número n y una lista xs, devuelve todos los elementos de xs que son menores a n.	
+--9 Dados un número n y una lista xs, devuelve todos los elementos de xs que son menores a n.
 losMenoresA :: Int -> [Int] -> [Int]
 losMenoresA n [] = []
-losMenoresA n (x:xs) = 
-	if x < n
-	then x : losMenoresA n xs
-	else losMenoresA n xs
-	
+losMenoresA n (x:xs) = if x < n
+					   then x : losMenoresA n xs
+					   else losMenoresA n xs
+
 --10. Dados un número n y una lista de listas, devuelve la lista de aquellas listas que tienen más
---de n elementos.	
+--de n elementos.
 lasDeLongitudMayorA :: Int -> [[a]] -> [[a]]
 lasDeLongitudMayorA n [] = []
-lasDeLongitudMayorA n (x:xs) = 
-	if longitud x > n
-	then x: lasDeLongitudMayorA n xs
-	else lasDeLongitudMayorA n xs
-	
+lasDeLongitudMayorA n (x:xs) = if longitud x > n
+							   then x: lasDeLongitudMayorA n xs
+							   else lasDeLongitudMayorA n xs
+
 --11. Dados una lista y un elemento, devuelve una lista con ese elemento agregado al final de la
 --lista.
 agregarAlFinal :: [a] -> a -> [a]
 agregarAlFinal [] n = [n]
 agregarAlFinal (x:xs) n = x : agregarAlFinal xs n
-	
+
 --12. Dadas dos listas devuelve la lista con todos los elementos de la primera lista y todos los
 --elementos de la segunda a continuación. Definida en Haskell como ++.
 concatenar :: [a] -> [a] -> [a]
@@ -92,7 +85,7 @@ reversa (x:xs) = agregarAlFinal ( reversa xs ) x
 
 --14. Dadas dos listas de enteros, devuelve una lista donde el elemento en la posición n es el
 --máximo entre el elemento n de la primera lista y de la segunda lista, teniendo en cuenta que
---las listas no necesariamente tienen la misma longitud.	
+--las listas no necesariamente tienen la misma longitud.
 zipMaximos :: [Int] -> [Int] -> [Int]
 zipMaximos xs1 [] = xs1
 zipMaximos [] xs2 = xs2
@@ -104,7 +97,7 @@ maxDelPar ( x, y ) = max x y
 
 --15. Dada una lista devuelve el mínimo
 elMinimo :: Ord a => [a] -> a
-elMinimo (x:[]) = x 
+elMinimo (x:[]) = x
 elMinimo (x:xs) = min x ( elMinimo xs )
 
 elMinimo2 :: [Int] -> Int
@@ -117,37 +110,40 @@ elMaximo (x:xs) = max x ( elMaximo xs )
 
 soloMayorAN :: Int -> [Int] -> [Int]
 soloMayorAN n [] = []
-soloMayorAN n (x:xs) = 
-	if x > n
-	then x : soloMayorAN n xs
-	else soloMayorAN n xs
-	
-	
+soloMayorAN n (x:xs) = if x > n
+					   then x : soloMayorAN n xs
+					   else soloMayorAN n xs
+
+
 porDos :: [Int] -> [Int]
-porDos [] = []	
+porDos [] = []
 porDos (x:xs) = x*2 : porDos xs
 
 
 lasDeLongitudMenoresA :: Int -> [[a]] -> [[a]]
 lasDeLongitudMenoresA n [] = []
-lasDeLongitudMenoresA n (x:xs) =
-	if longitud x < n
-	then x : lasDeLongitudMenoresA n xs
-	else lasDeLongitudMenoresA n xs
-	
+lasDeLongitudMenoresA n (x:xs) = if longitud x < n
+								 then x : lasDeLongitudMenoresA n xs
+								 else lasDeLongitudMenoresA n xs
 
---2. Recursión sobre números	
+
+--2. Recursión sobre números
 --1 Dado un número n se devuelve la multiplicación de este número y todos sus anteriores hasta
---llegar a 0. Si n es 0 devuelve 1. La función es parcial si n es negativo.	
+--llegar a 0. Si n es 0 devuelve 1. La función es parcial si n es negativo.
 factorial :: Int -> Int
 factorial 0 = 1
 factorial n = n * factorial ( n - 1 )
 
 --2. Dado un número n devuelve una lista cuyos elementos sean los números comprendidos entre
 --n y 1 (incluidos). Si el número es inferior a 1, devuelve la lista vacía.
-cuentaRegresiva :: Int -> [Int]
-cuentaRegresiva 0 = []
-cuentaRegresiva n = n : cuentaRegresiva ( n - 1 )
+cuentaRegresiva :: Int -> [Int] 
+cuentaRegresiva  n =  if n < 0
+                      then []
+                      else cuentaRegresivaRecursiva n
+
+cuentaRegresivaRecursiva :: Int -> [Int] 
+cuentaRegresivaRecursiva 0 = []
+cuentaRegresivaRecursiva n = n : (cuentaRegresivaRecursiva (n -1))
 
 --3. Dado un número n y un elemento e devuelve una lista en la que el elemento e repite n veces.
 repetir :: Int -> a -> [a]
@@ -164,24 +160,24 @@ pers3 = ConsPersona "Pepe" 20
 --Dados una edad y una lista de personas devuelve a las personas mayores a esa edad.
 mayoresA :: Int -> [Persona] -> [Persona]
 mayoresA _ [] = []
-mayoresA i (p:ps) = if esMayorA (edadPersona p) i 
+mayoresA i (p:ps) = if esMayorA (edadPersona p) i
 					then p : ( mayoresA i ps )
-					else mayoresA i ps	
+					else mayoresA i ps
 
-				
+
 --Dada una lista de personas devuelve el promedio de edad entre esas personas. Precondición: la lista al menos posee una persona.
 promedioEdad :: [Persona] -> Int
 promedioEdad [] = error "Lista Vacia"
 promedioEdad p = div ( sumarEdades p ) (cantidadPersonas p)
-		
+
 sumarEdades :: [Persona] -> Int
 sumarEdades [] = 0
-sumarEdades (x:xs) = edadPersona x + sumarEdades xs		
+sumarEdades (x:xs) = edadPersona x + sumarEdades xs
 
 cantidadPersonas :: [Persona] -> Int
 cantidadPersonas [] = 0
 cantidadPersonas (x:xs) = 1 + cantidadPersonas xs
-				
+
 esMayorA :: Int -> Int -> Bool
 esMayorA x y = x > y
 
@@ -198,16 +194,23 @@ nombres (x:xs) = nombre x : nombres xs
 --Dada una lista de personas devuelve la persona más vieja de la lista. Precondición: la
 --lista al menos posee una persona.
 elMasViejo :: [Persona] -> Persona
-elMasViejo (x:[]) =  x 
-elMasViejo (x:xs) = if esMayorA ( edadPersona x ) ( edadPersona ( elMasViejo xs ) )
-				  then x
-				  else elMasViejo xs
+elMasViejo (x:[]) =  x
+elMasViejo (x:xs) = elMayor x ( elMasViejo xs )
+
+--if esMayorA ( edadPersona x ) ( edadPersona ( elMasViejo xs ) )
+--  then x
+--  else elMasViejo xs
+ 
+elMayor :: Persona -> Persona -> Persona
+elMayor p1 p2 = if esMayorA ( edadPersona p1) ( edadPersona p2)
+				then p1
+				else p2
 
 
 data TipoDePokemon = Agua | Fuego | Planta
 data Pokemon = ConsPokemon TipoDePokemon Int
 data Entrenador = ConsEntrenador String [Pokemon]
-			
+
 poke1 = ConsPokemon Agua 50
 poke2 = ConsPokemon Fuego 30
 poke3 = ConsPokemon Planta 80
@@ -215,7 +218,7 @@ poke3 = ConsPokemon Planta 80
 entrenador0 = ConsEntrenador "Vacio" []
 entrenador1 = ConsEntrenador "Ash" [poke1, poke2, poke3]
 entrenador2 = ConsEntrenador "Brook" [poke2, poke2]
-			
+
 unoSiEsTrue :: Bool -> Int
 unoSiEsTrue True = 1
 unoSiEsTrue False = 0
@@ -224,9 +227,9 @@ esDeMismoTipo :: TipoDePokemon -> TipoDePokemon -> Bool
 esDeMismoTipo Agua Agua = True
 esDeMismoTipo Fuego Fuego = True
 esDeMismoTipo Planta Planta = True
-esDeMismoTipo _ _ = False			
-			
---Devuelve la cantidad de Pokémon que posee el entrenador.				  
+esDeMismoTipo _ _ = False
+
+--Devuelve la cantidad de Pokémon que posee el entrenador.  
 cantPokemon :: Entrenador -> Int
 cantPokemon (ConsEntrenador n ps) = longitud ps
 
@@ -246,16 +249,16 @@ losQueLeGanan :: TipoDePokemon -> Entrenador -> Entrenador -> Int
 losQueLeGanan t ent1 ent2 = pokemonesQueGanan ( pokemonesDelTipo  t  (pokemonesEntrenador ent1) ) (pokemonesEntrenador ent2)
 
 
-pokemonesDelTipo :: TipoDePokemon -> [Pokemon] -> [Pokemon] 
+pokemonesDelTipo :: TipoDePokemon -> [Pokemon] -> [Pokemon]
 pokemonesDelTipo _ [] = []
 pokemonesDelTipo t (x:xs) = if esDeMismoTipo t ( tipoPokemon x )
-					then x : pokemonesDelTipo t xs
-					else pokemonesDelTipo t xs
+							then x : pokemonesDelTipo t xs
+							else pokemonesDelTipo t xs
 
 pokemonesQueGanan :: [Pokemon] -> [Pokemon] -> Int
 pokemonesQueGanan [] _ = 0
 pokemonesQueGanan (x:xs) yss = unoSiEsTrue ( superaATodos x yss) +  pokemonesQueGanan xs yss
-				
+
 
 superaATodos :: Pokemon -> [Pokemon] -> Bool
 superaATodos _ [] =  True
@@ -277,9 +280,11 @@ esGanador x y = False
 
 --Dado un entrenador, devuelve True si posee al menos un Pokémon de cada tipo posible.
 esMaestroPokemon :: Entrenador -> Bool
-esMaestroPokemon ent = tieneTipo Agua (pokemonesEntrenador ent) && 
-						tieneTipo Fuego (pokemonesEntrenador ent) && 
-						tieneTipo Planta (pokemonesEntrenador ent)
+esMaestroPokemon (ConsEntrenador _ ps) = tieneTodosLosTipos ps
+
+tieneTodosLosTipos :: [Pokemon] -> Bool
+tieneTodosLosTipos [] = True
+tieneTodosLosTipos ps = tieneTipo Agua ps && tieneTipo Fuego ps && tieneTipo Planta ps
 
 tieneTipo :: TipoDePokemon -> [Pokemon] ->Bool
 tieneTipo _ [] = False
@@ -287,15 +292,15 @@ tieneTipo t (x:xs) = esDeMismoTipo t ( tipoPokemon x) || tieneTipo t xs
  
 
  
-data Seniority = Junior | SemiSenior | Senior 
+data Seniority = Junior | SemiSenior | Senior
 data Proyecto = ConsProyecto String deriving (Eq, Show)
-data Rol = Developer Seniority Proyecto | Management Seniority Proyecto 
-data Empresa = ConsEmpresa [Rol] 
-	
-proy1 = ConsProyecto "Proy1"
+data Rol = Developer Seniority Proyecto | Management Seniority Proyecto
+data Empresa = ConsEmpresa [Rol]
+
+proy1 = ConsProyecto "Proy2"
 proy2 = ConsProyecto "Proy2"
-rol1 = Developer Senior	proy1
-rol2 = Developer Senior	proy2
+rol1 = Developer Senior proy1
+rol2 = Developer Senior proy2
 emp1 = ConsEmpresa [rol1,rol2]
 
 
@@ -308,17 +313,18 @@ rolesDeEmpresa (ConsEmpresa xss) = xss
 
 proyectosDelRol :: [Rol] -> [Proyecto]
 proyectosDelRol [] = []
-proyectosDelRol (x:xs) = if existeProyecto ( obtenerProyecto x ) ( proyectosDelRol xs)
-						 then proyectosDelRol xs
-					     else obtenerProyecto x : proyectosDelRol xs
-	
+proyectosDelRol (x:xs) = agregarProyectoSiNoEsta ( obtenerProyecto x ) ( proyectosDelRol xs)
+
+agregarProyectoSiNoEsta :: Proyecto -> [Proyecto] -> [Proyecto]
+agregarProyectoSiNoEsta x xs = if existeProyecto x xs
+                                then xs
+                                else x:xs
+
 existeProyecto :: Proyecto -> [Proyecto] -> Bool
 existeProyecto _ [] = False
-existeProyecto p (x:xs) = if p == x
-						  then True
-						  else existeProyecto p xs
+existeProyecto p (x:xs) = p == x || existeProyecto p xs
 
-	
+
 obtenerProyecto :: Rol -> Proyecto
 obtenerProyecto (Developer _ p) = p
 obtenerProyecto (Management _ p) = p
@@ -326,27 +332,29 @@ obtenerProyecto (Management _ p) = p
 --Dada una empresa indica la cantidad de desarrolladores senior que posee, que pertecen
 --además a los proyectos dados por parámetro.
 losDevSenior :: Empresa -> [Proyecto] -> Int
-losDevSenior emp xss = pertenecenAUnProyecto ( desarolladoresPorTipo (rolesDeEmpresa emp) Senior) xss 
+losDevSenior emp xss = pertenecenAUnProyecto ( desarolladoresSenior (rolesDeEmpresa emp) ) xss
 
-desarolladoresPorTipo :: [Rol] -> Seniority -> [Rol]
-desarolladoresPorTipo [] _ = []
-desarolladoresPorTipo (x:xs) s = if esDelMismoRango x s
-								 then x : desarolladoresPorTipo xs s
-								 else desarolladoresPorTipo xs s
-								 
-esDelMismoRango :: Rol -> Seniority -> Bool
-esDelMismoRango (Developer Junior _) Junior = True
-esDelMismoRango (Developer SemiSenior _) SemiSenior = True
-esDelMismoRango (Developer Senior _) Senior = True
-esDelMismoRango _ _ = False
+desarolladoresSenior :: [Rol] -> [Rol]
+desarolladoresSenior [] = []
+desarolladoresSenior (x:xs) = if esRolSenior x
+     then x : desarolladoresSenior xs
+     else desarolladoresSenior xs
+
+esRolSenior :: Rol -> Bool
+esRolSenior (Developer s _)  = esSenior s
+esRolSenior (Management s _) = esSenior s
+
+esSenior :: Seniority -> Bool
+esSenior Senior = True
+esSenior _      = False
 
 pertenecenAUnProyecto :: [Rol] -> [Proyecto] -> Int
 pertenecenAUnProyecto [] _ = 0
 pertenecenAUnProyecto (x:xs) yss = if existeProyecto (obtenerProyecto x) yss
-								   then 1 + pertenecenAUnProyecto xs yss
-								   else pertenecenAUnProyecto xs yss
-								   
-								 
+  then 1 + pertenecenAUnProyecto xs yss
+  else pertenecenAUnProyecto xs yss
+ 
+
 --Indica la cantidad de empleados que trabajan en alguno de los proyectos dados.
 cantQueTrabajanEn :: [Proyecto] -> Empresa -> Int
 cantQueTrabajanEn yss emp = pertenecenAUnProyecto (rolesDeEmpresa emp) yss
@@ -354,12 +362,14 @@ cantQueTrabajanEn yss emp = pertenecenAUnProyecto (rolesDeEmpresa emp) yss
 --Devuelve una lista de pares que representa a los proyectos (sin repetir) junto con su
 --cantidad de personas involucradas.
 asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
-asignadosPorProyecto emp = involucrados emp ( proyectosDelRol ( rolesDeEmpresa emp ) )
+asignadosPorProyecto (ConsEmpresa yss) = asignadosPorProyectoAux yss
 
-involucrados :: Empresa -> [Proyecto] -> [(Proyecto, Int)]
-involucrados _ []  = []
-involucrados emp (x:xs)  = (x, cantQueTrabajanEn [x] emp ) : involucrados emp xs
+asignadosPorProyectoAux :: [Rol] -> [(Proyecto, Int)]
+asignadosPorProyectoAux [] = []
+asignadosPorProyectoAux (x:xs) = agregarProyecto ( obtenerProyecto x) (asignadosPorProyectoAux xs)
 
-
-	
- 
+agregarProyecto :: Proyecto -> [ (Proyecto,Int) ] -> [ (Proyecto ,Int) ]
+agregarProyecto p [] = [(p, 1)]
+agregarProyecto p ((p1,n) : ps1) = if p == p1
+                                      then (p1, n+1)   : ps1
+                                      else (p1, n )    : agregarProyecto p ps1

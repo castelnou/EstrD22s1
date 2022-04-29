@@ -17,7 +17,7 @@ armarPizza :: [Ingrediente] -> Pizza
 armarPizza [] = Prepizza
 armarPizza (x:xs) = Capa x (armarPizza xs)
 
---3.Le saca los ingredientes que sean jam髇 a la pizza
+--3.Le saca los ingredientes que sean jam贸n a la pizza
 sacarJamon :: Pizza -> Pizza
 sacarJamon Prepizza = Prepizza
 sacarJamon (Capa ing p) = if esJamon ing
@@ -116,7 +116,7 @@ esTesoro Tesoro = True
 esTesoro _ = False
 
 --2 Indica si al final del camino hay un tesoro. Nota: el final de un camino se representa con una
---lista vac韆 de direcciones.
+--lista vac铆a de direcciones.
 hayTesoroEn :: [Dir] -> Mapa -> Bool
 hayTesoroEn [] map = hayTesoroEnFin map
 hayTesoroEn (x:xs) map = hayTesoroEn xs ( moverEnDir x map )
@@ -135,16 +135,16 @@ esIzq :: Dir -> Bool
 esIzq Izq = True
 esIzq _   = False
 
---3 Indica el camino al tesoro. Precondici髇: existe un tesoro y es 鷑ico.
+--3 Indica el camino al tesoro. Precondici贸n: existe un tesoro y es 煤nico.
 caminoAlTesoro :: Mapa -> [Dir]
 caminoAlTesoro (Fin c) = []
-caminoAlTesoro (Bifurcacion c mi md) = if hayTesoroEnC c 
+caminoAlTesoro (Bifurcacion c mi md) = if tieneTesoro c 
 										then []
 										else if hayTesoro mi
 											then Izq : caminoAlTesoro mi 
 											else Der : caminoAlTesoro md
 
---4 Indica el camino de la rama m醩 larga.
+--4 Indica el camino de la rama m谩s larga.
 caminoDeLaRamaMasLarga :: Mapa -> [Dir] 
 caminoDeLaRamaMasLarga (Fin cofre) = []
 caminoDeLaRamaMasLarga (Bifurcacion _ mi md) =  if heightM mi > heightM md 
@@ -155,9 +155,9 @@ heightM :: Mapa -> Int
 heightM (Fin _) = 0
 heightM (Bifurcacion _ mi md) = 1 + max (heightM mi) (heightM md)
 
--- 5 Devuelve los tesoros separados por nivel en el 醨bol.
+-- 5 Devuelve los tesoros separados por nivel en el 谩rbol.
 tesorosPorNivel :: Mapa -> [[Objeto]]
-tesorosPorNivel (Fin c) = tesorosEnC c : []
+tesorosPorNivel (Fin c) = tesorosEnCofre c : []
 tesorosPorNivel (Bifurcacion c mi md) = 
     tesorosEnCofre c : juntarPorNivel (tesorosPorNivel mi) (tesorosPorNivel md)
 
@@ -183,7 +183,7 @@ todosLosCaminos (Bifurcacion c mi md) =
 
 agregarATodos :: Dir -> [[Dir]] -> [[Dir]]
 agregarATodos d [] = []
-agregarATodos d (xs:xss) = (x:xs) : agregarATodos d xss
+agregarATodos d (xs:xss) = (d:xs) : agregarATodos d xss
 
 
 data Componente = LanzaTorpedos | Motor Int | Almacen [Barril]
@@ -208,8 +208,8 @@ sectoresT (NodeT s si sd) =
 sectorId :: Sector -> String
 sectorId (S i _ _) = i
 
--- 2) Prop髎ito: Devuelve la suma de poder de propulsi髇 de todos los motores de la nave. Nota:
--- el poder de propulsi髇 es el n鷐ero que acompa馻 al constructor de motores.
+-- 2) Prop贸sito: Devuelve la suma de poder de propulsi贸n de todos los motores de la nave. Nota:
+-- el poder de propulsi贸n es el n煤mero que acompa帽a al constructor de motores.
 poderDePropulsion :: Nave -> Int
 poderDePropulsion (N t) = poderDePropulsionT t
 
@@ -229,7 +229,7 @@ propulsion :: Componente -> Int
 propulsion (Motor n) = n
 propulsion _ = 0
 
---3) Prop髎ito: Devuelve todos los barriles de la nave.
+--3) Prop贸sito: Devuelve todos los barriles de la nave.
 barriles :: Nave -> [Barril]
 barriles (N t) = barrilesT t
 
@@ -248,8 +248,8 @@ barril :: Componente -> [Barril]
 barril (Almacen bs) = bs
 barril _ = []
 
--- 4) Prop髎ito: A馻de una lista de componentes a un sector de la nave.
---  Nota: ese sector puede no existir, en cuyo caso no a馻de componentes
+-- 4) Prop贸sito: A帽ade una lista de componentes a un sector de la nave.
+--  Nota: ese sector puede no existir, en cuyo caso no a帽ade componentes
 agregarASector :: [Componente] -> SectorId -> Nave -> Nave
 agregarASector cs i (N t) = N (agregarASectorT cs i t)
 
@@ -268,7 +268,7 @@ esSectorConId :: Sector -> SectorId -> Bool
 esSectorConId (S i _ _) sid = i == sid
 
 -- 5) Incorpora un tripulante a una lista de sectores de la nave.
--- Precondici髇: Todos los id de la lista existen en la nave.
+-- Precondici贸n: Todos los id de la lista existen en la nave.
 asignarTripulanteA :: Tripulante -> [SectorId] -> Nave -> Nave
 asignarTripulanteA t ids (N tr) = N (asignarTripulanteAT t ids tr)
 
@@ -314,7 +314,7 @@ data Lobo = Cazador Nombre [Presa] Lobo Lobo Lobo | Explorador Nombre [Territori
 data Manada = M Lobo
 
 -- 1) Construir un valor de tipo Manada que posea 1 cazador, 2 exploradores y que el resto sean
---    cr韆s. Resolver las siguientes funciones utilizando recursi髇 estructural sobre la estructura
+--    cr铆as. Resolver las siguientes funciones utilizando recursi贸n estructural sobre la estructura
 --    que corresponda en cada caso.
 
 manada = M (Cazador "perro1" ["1","2","3","4"] 
@@ -326,7 +326,7 @@ manada = M (Cazador "perro1" ["1","2","3","4"]
 	               (Cria "perro7"))
 	           (Cria "perro8"))
 
--- 2) dada una manada, indica si la cantidad de alimento cazado es mayor a la cantidad de cr韆s.
+-- 2) dada una manada, indica si la cantidad de alimento cazado es mayor a la cantidad de cr铆as.
 buenaCaza :: Manada -> Bool 
 buenaCaza (M l) = cantDePresas l > cantDeCrias l
 
@@ -342,9 +342,9 @@ cantDeCrias (Cria n) = 1
 cantDeCrias (Explorador n ts l1 l2) = cantDeCrias l1 + cantDeCrias l2
 cantDeCrias (Cazador n ps l1 l2 l3) = cantDeCrias l1 + cantDeCrias l2 + cantDeCrias l3
 
--- 3) dada una manada, devuelve el nombre del lobo con m醩 presas cazadas, junto con su cantidad de
---presas. Nota: se considera que los exploradores y cr韆s tienen cero presas cazadas, y que 
---podr韆n formar parte del resultado si es que no existen cazadores con m醩 de cero presas
+-- 3) dada una manada, devuelve el nombre del lobo con m谩s presas cazadas, junto con su cantidad de
+--presas. Nota: se considera que los exploradores y cr铆as tienen cero presas cazadas, y que 
+--podr铆an formar parte del resultado si es que no existen cazadores con m谩s de cero presas
 elAlfa :: Manada -> (Nombre, Int)
 elAlfa (M l) = elAlfaL l
 
@@ -404,7 +404,7 @@ agregarNom n (t,ns) = (t, n : ns)
 
 -- 6) dado un nombre de cazador y una manada, indica el nombre de todos los cazadores que tienen
 --como subordinado al cazador dado (directa o indirectamente). 
---Precondici髇: hay un cazador con dicho nombre y es 鷑ico.
+--Precondici贸n: hay un cazador con dicho nombre y es 煤nico.
 superioresDelCazador :: Nombre -> Manada -> [Nombre]
 superioresDelCazador n (M l) = superioresDe n l
 

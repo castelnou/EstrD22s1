@@ -24,7 +24,6 @@ nroBolitas c ( Bolita col cel ) = unoSi ( esIgual c col ) +  nroBolitas c cel
 	
 --Dado un color y una celda, agrega una bolita de dicho color a la celda.	
 poner :: Color -> Celda -> Celda
-poner c CeldaVacia = Bolita c CeldaVacia 
 poner c cel = Bolita c cel
 	
 --Dado un color y una celda, quita una bolita de dicho color de la celda. Nota: a diferencia de
@@ -98,10 +97,8 @@ alMenosNTesoros :: Int -> Camino -> Bool
 alMenosNTesoros 0 _ = True
 alMenosNTesoros _ Fin = False
 alMenosNTesoros n (Nada cam) = alMenosNTesoros n cam
-alMenosNTesoros n ( Cofre obj cam ) = if n > cantidadTesoros obj
-									  then alMenosNTesoros ( n - cantidadTesoros obj ) cam
-									  else True
-
+alMenosNTesoros n ( Cofre obj cam ) = n > cantidadTesoros obj || alMenosNTesoros ( n - cantidadTesoros obj ) cam
+									  
 cantidadTesoros :: [Objeto] -> Int
 cantidadTesoros [] = 0
 cantidadTesoros (x:xs) = unoSi ( esTesoro x ) + cantidadTesoros xs
@@ -112,16 +109,19 @@ cantidadTesoros (x:xs) = unoSi ( esTesoro x ) + cantidadTesoros xs
 --el rango es 3 y 5, indica la cantidad de tesoros que hay entre hacer 3 pasos y hacer 5. Están
 --incluidos tanto 3 como 5 en el resultado.(desafío) 
 cantTesorosEntre :: Int -> Int -> Camino -> Int
-cantTesorosEntre n1 n2 cam = tesorosHastaN n2 cam - tesorosHastaN n1 cam
+cantTesorosEntre n1 n2 cam = cantTesorosHastaN (n2-n1) (avanzarHasta n1 cam)
 
-tesorosHastaN :: Int -> Camino -> Int
-tesorosHastaN 0 ( Cofre obj cam ) = cantidadTesoros obj
-tesorosHastaN 0 _ = 0
-tesorosHastaN _ Fin = 0
-tesorosHastaN n (Nada cam) = tesorosHastaN ( n - 1 ) cam
-tesorosHastaN n ( Cofre obj cam ) = cantidadTesoros obj + tesorosHastaN ( n - 1 ) cam
+avanzarHasta :: Int -> Camino -> Int
+avanzarHasta 0 c = c
+avanzarHasta n Fin = Fin
+avanzarHasta n (Nada c) = avanzarHasta (n-1) c
+avanzarHasta n (Cofre os c) = avanzarHasta (n-1) c
 
-
+cantTesorosHasta :: Int -> Camino -> Int
+cantTesorosHasta 0 c = 0
+cantTesorosHasta n Fin = 0
+cantTesorosHasta n (Nada c) = cantTesorosHasta (n-1) c
+cantTesorosHasta n (Cofre os c) = cantidadTesoros os + cantTesorosHasta (n-1) c
 
 --2.1. Árboles binarios
 --Dada esta definición para árboles binarios
@@ -161,7 +161,8 @@ aparicionesT n (NodeT num ti td) = unoSi (n == num) + aparicionesT n ti + aparic
 --6.Dado un árbol devuelve los elementos que se encuentran en sus hojas
 leaves :: Tree a -> [a]
 leaves EmptyT = []
-leaves (NodeT num ti td) =  num : ( leaves ti ) ++ ( leaves td )
+leaves (NodeT num EmptyT EmptyT) = [num]
+leaves (NodeT num ti td) = leaves ti ++ leaves td 
 
 --7. Dado un árbol devuelve su altura.
 --Nota: la altura de un árbol (height en inglés), también llamada profundidad, es la cantidad
@@ -169,14 +170,12 @@ leaves (NodeT num ti td) =  num : ( leaves ti ) ++ ( leaves td )
 --. La altura para EmptyT es 0, y para una hoja es 1.
 heightT :: Tree a -> Int
 heightT EmptyT = 0
-heightT (NodeT num EmptyT EmptyT) = 1
 heightT (NodeT num ti td) = 1 + (heightT ti) + (heightT td)
 
 --8. Dado un árbol devuelve el árbol resultante de intercambiar el hijo izquierdo con el derecho,
 --en cada nodo del árbol.
 mirrorT :: Tree a -> Tree a
 mirrorT EmptyT = EmptyT 
-mirrorT (NodeT num EmptyT EmptyT) = (NodeT num EmptyT EmptyT ) 
 mirrorT (NodeT num ti td) = (NodeT num (mirrorT td ) (mirrorT ti))
 
 
@@ -185,8 +184,8 @@ mirrorT (NodeT num ti td) = (NodeT num (mirrorT td ) (mirrorT ti))
 --y luego los elementos del hijo derecho.
 toList :: Tree a -> [a]
 toList EmptyT = []
-toList (NodeT num EmptyT EmptyT) = [num]
-toList (NodeT num ti td ) = num : (toList ti) ++ (toList td)
+toList (NodeT num ti td ) = toList ti ++ [num] ++ toList td
+
 
 --10.Dados un número n y un árbol devuelve una lista con los nodos de nivel n. El nivel de un
 --nodo es la distancia que hay de la raíz hasta él. La distancia de la raiz a sí misma es 0, y la
@@ -194,20 +193,32 @@ toList (NodeT num ti td ) = num : (toList ti) ++ (toList td)
 levelN :: Int -> Tree a -> [a]
 levelN _ EmptyT = []
 levelN 0 (NodeT num _ _  ) = [num]
-levelN n (NodeT num ti td) = num : ((levelN (n-1) ti) ++ (levelN (n-1) td))
+levelN n (NodeT num ti td) = levelN (n-1) ti ++ levelN (n-1) td
+
 
 --11.Dado un árbol devuelve una lista de listas en la que cada elemento representa un nivel de
 --dicho árbol.
 listPerLevel :: Tree a -> [[a]]
+listPerLevel t = listPerLevelAux t (heightT t)
 
+listPerLevelAux :: Tree a -> Int -> [[a]]
+listPerLevelAux EmptyT _ = []
+listPerLevelAux t 0 = [levelN 0 t]
+listPerLevelAux t p = listPerLevelAux t (p-1) ++ [levelN p t]  
 
 --12.Devuelve los elementos de la rama más larga del árbol
 ramaMasLarga :: Tree a -> [a]
 ramaMasLarga EmptyT = []
-ramaMasLarga (NodeT num ti td) =  if heightT ti >= heightT td   
-                                then num : ramaMasLarga ti 
-                                else num : ramaMasLarga td
+ramaMasLarga (NodeT num ti td) = masLarga (ramaMasLarga ti) (ramaMasLarga td)
 
+masLarga :: [a] -> [a] -> [a]
+masLarga ti td = if long l1 > long l2 
+				 then ti
+				 else td 
+
+long :: [a] -> Int
+long []  = 0
+long (x:xs) = 1 + long xs
 
 --13.Dado un árbol devuelve todos los caminos, es decir, los caminos desde la raiz hasta las hojas.
 todosLosCaminos :: Tree a  -> [[a]]
@@ -255,3 +266,7 @@ simplificarProducto e1 e2 = Prod e1 e2
 simplificarNegativo :: ExpA -> ExpA
 simplificarNegativo (Neg x) = x
 simplificarNegativo x = Neg x
+
+
+			
+			

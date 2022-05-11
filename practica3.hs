@@ -79,14 +79,10 @@ hayTesoroEn _ Fin = False
 hayTesoroEn n cam = hayTesoroEnCelda ( avanzarNPasos n cam )
 
 avanzarNPasos :: Int -> Camino -> Camino
-avanzarNPasos _ Fin = Fin
 avanzarNPasos 0 cam = cam
-avanzarNPasos n cam = avanzarNPasos ( n - 1 ) ( avanzarUnPaso cam )
-
-avanzarUnPaso :: Camino -> Camino
-avanzarUnPaso Fin = Fin
-avanzarUnPaso (Nada cam) = cam
-avanzarUnPaso ( Cofre obj cam ) = cam	
+avanzarNPasos _ Fin = Fin
+avanzarNPasos n (Cofre _ c) = avanzarNPasos (n-1) c
+avanzarNPasos n (Nada c) = avanzarNPasos (n-1) c
 
 hayTesoroEnCelda :: Camino -> Bool
 hayTesoroEnCelda ( Cofre obj cam ) = tieneTesoro obj
@@ -111,17 +107,21 @@ cantidadTesoros (x:xs) = unoSi ( esTesoro x ) + cantidadTesoros xs
 cantTesorosEntre :: Int -> Int -> Camino -> Int
 cantTesorosEntre n1 n2 cam = cantTesorosHastaN (n2-n1) (avanzarHasta n1 cam)
 
-avanzarHasta :: Int -> Camino -> Int
+avanzarHasta :: Int -> Camino -> Camino
 avanzarHasta 0 c = c
 avanzarHasta n Fin = Fin
 avanzarHasta n (Nada c) = avanzarHasta (n-1) c
 avanzarHasta n (Cofre os c) = avanzarHasta (n-1) c
 
-cantTesorosHasta :: Int -> Camino -> Int
-cantTesorosHasta 0 c = 0
-cantTesorosHasta n Fin = 0
-cantTesorosHasta n (Nada c) = cantTesorosHasta (n-1) c
-cantTesorosHasta n (Cofre os c) = cantidadTesoros os + cantTesorosHasta (n-1) c
+cantTesorosHastaN :: Int -> Camino -> Int
+cantTesorosHastaN 0 c = cantTesorosDelCamino c
+cantTesorosHastaN n Fin = 0
+cantTesorosHastaN n (Nada c) = cantTesorosHastaN (n-1) c
+cantTesorosHastaN n (Cofre os c) = cantidadTesoros os + cantTesorosHastaN (n-1) c
+
+cantTesorosDelCamino :: Camino -> Int
+cantTesorosDelCamino (Cofre xs c) = cantidadTesoros xs
+cantTesorosDelCamino _ = 0
 
 --2.1. Árboles binarios
 --Dada esta definición para árboles binarios
@@ -129,7 +129,7 @@ data Tree a = EmptyT | NodeT a (Tree a) (Tree a)
 
 --1.Dado un árbol binario de enteros devuelve la suma entre sus elementos.
 sumarT :: Tree Int -> Int
-sumarT EmptyT _ = 0
+sumarT EmptyT = 0
 sumarT (NodeT num ti td) = num + sumarT ti + sumarT td
 
 
@@ -143,7 +143,7 @@ sizeT (NodeT _ ti td) = 1 + sizeT ti + sizeT td
 --3.Dado un árbol de enteros devuelve un árbol con el doble de cada número.
 mapDobleT :: Tree Int -> Tree Int
 mapDobleT EmptyT = EmptyT
-mapDobleT (NodeT num ti td) = NodeT (n*2) (mapDobleT ti) (mapDobleT td)
+mapDobleT (NodeT num ti td) = NodeT (num*2) (mapDobleT ti) (mapDobleT td)
 
 --4.Dados un elemento y un árbol binario devuelve True si existe un elemento igual a ese en el
 --árbol.
@@ -167,10 +167,10 @@ leaves (NodeT num ti td) = leaves ti ++ leaves td
 --7. Dado un árbol devuelve su altura.
 --Nota: la altura de un árbol (height en inglés), también llamada profundidad, es la cantidad
 --de niveles del árbol1
---. La altura para EmptyT es 0, y para una hoja es 1.
+-- La altura para EmptyT es 0, y para una hoja es 1.
 heightT :: Tree a -> Int
 heightT EmptyT = 0
-heightT (NodeT num ti td) = 1 + (heightT ti) + (heightT td)
+heightT (NodeT num ti td) = 1 +  max (heightT ti) (heightT td) 
 
 --8. Dado un árbol devuelve el árbol resultante de intercambiar el hijo izquierdo con el derecho,
 --en cada nodo del árbol.
@@ -199,12 +199,13 @@ levelN n (NodeT num ti td) = levelN (n-1) ti ++ levelN (n-1) td
 --11.Dado un árbol devuelve una lista de listas en la que cada elemento representa un nivel de
 --dicho árbol.
 listPerLevel :: Tree a -> [[a]]
-listPerLevel t = listPerLevelAux t (heightT t)
+listPerLevel EmptyT = []
+listPerLevel (NodeT num ti td) = [num] : listPerLevelAux (listPerLevel ti) (listPerLevel td)
 
-listPerLevelAux :: Tree a -> Int -> [[a]]
-listPerLevelAux EmptyT _ = []
-listPerLevelAux t 0 = [levelN 0 t]
-listPerLevelAux t p = listPerLevelAux t (p-1) ++ [levelN p t]  
+listPerLevelAux :: [[a]] -> [[a]] -> [[a]]
+listPerLevelAux [] yss = yss
+listPerLevelAux xss [] = xss
+listPerLevelAux (xs:xss) (ys:yss) = (xs++ys) : listPerLevelAux xss yss
 
 --12.Devuelve los elementos de la rama más larga del árbol
 ramaMasLarga :: Tree a -> [a]
@@ -212,7 +213,7 @@ ramaMasLarga EmptyT = []
 ramaMasLarga (NodeT num ti td) = masLarga (ramaMasLarga ti) (ramaMasLarga td)
 
 masLarga :: [a] -> [a] -> [a]
-masLarga ti td = if long l1 > long l2 
+masLarga ti td = if long ti > long td 
 				 then ti
 				 else td 
 
@@ -239,16 +240,16 @@ eval :: ExpA -> Int
 eval (Valor n) = n
 eval (Sum e1 e2) = eval e1 + eval e2
 eval (Prod e1 e2) = eval e1 * eval e2
-eval (Neg expA) = eval e1 * (-1)
+eval (Neg e) = eval e  * (-1)
 
 --2 Dada una expresión aritmética, la simplifica según los siguientes criterios (descritos utilizando
 --notación matemática convencional):
 
 simplificar :: ExpA -> ExpA 
-simplificar (Valor e    )  = Valor e
-simplificar (Sum   e1 e2)  = simplificarSuma (simplificar e1) (simplificar e2) 
-simplificar (Prod  e1 e2)  = simplificarProducto (simplificar e1) (simplificar e2) 
-simplificar (Neg   e    )  = simplificarNegativo (simplificar e)
+simplificar (Valor e )  = Valor e
+simplificar (Sum  e1 e2)  = simplificarSuma (simplificar e1) (simplificar e2) 
+simplificar (Prod e1 e2)  = simplificarProducto (simplificar e1) (simplificar e2) 
+simplificar (Neg e )  = simplificarNegativo (simplificar e)
 
 
 simplificarSuma :: ExpA -> ExpA -> ExpA
